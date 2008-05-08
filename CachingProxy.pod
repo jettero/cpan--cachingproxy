@@ -35,6 +35,10 @@ CCP will choose randomly among them.  WARNING: The author has had problems
 choosing randomly between several mirrors -- they don't always have the same
 files!  It is therefore recommended to choose one favorite.
 
+Please do not use the mirror listed in the examples.  Pick one near you.
+
+ wget -qO - http://www.cpan.org/MIRRORED.BY | grep dst_http | less
+
 =head2 cgi
 
 CCP will choose a default CGI.pm if you don't specify one.  The main reason to
