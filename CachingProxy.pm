@@ -4,12 +4,11 @@
 
 use strict;
 use Carp;
-
-use CGI;
-use CGI::Carp qw(fatalsToBrowser);
 use Cache::File;
 use Data::Dumper;
 use LWP::UserAgent;
+
+our $VERSION = "1.0.0";
 
 # wget -O MIRRORED.BY http://www.cpan.org/MIRRORED.BY
 
@@ -18,7 +17,11 @@ sub new {
     my $class = shift;
     my $this  = bless {@_}, $class;
 
-    $this->{cgi} = new CGI unless $this->{cgi};
+    unless( $this->{cgi} ) {
+        require CGI or die $@;
+        $this->{cgi} = new CGI;
+    }
+
     unless( $this->{cf} ) {
         $this->{cache_root}      = "/tmp/ccp/" unless $this->{cache_root};
         $this->{default_expires} = "2 day"     unless $this->{default_expires};
