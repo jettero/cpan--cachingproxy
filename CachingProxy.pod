@@ -50,7 +50,7 @@ devising.
 By default, CCP will use Cache::File as the caching mechanism.  You may choose
 anything you like.  There are many other choices.  CCP will expect whichever
 module you choose to act exactly like Cache::File (including the C<handle()>
-method, which you will not find in many Cache modules).
+method, which you will not find in many of the Cache modules).
 
 =head3 cache_root
 
