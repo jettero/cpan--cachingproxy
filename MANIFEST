@@ -1,0 +1,5 @@
+CachingProxy.pm
+Makefile.PL
+README
+t/01_mg_new_auto.t
+MANIFEST
