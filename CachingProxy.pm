@@ -2,6 +2,8 @@
 # vi:tw=0:
 # $Id$
 
+package CPAN::CachingProxy;
+
 use strict;
 use Carp;
 use Cache::File;
@@ -26,7 +28,7 @@ sub new {
         $this->{cache_root}      = "/tmp/ccp/" unless $this->{cache_root};
         $this->{default_expires} = "2 day"     unless $this->{default_expires};
 
-        my $cache = Cache::File->new(cache_root=>$this->{cache_root}, default_expires => $this->{default_expires} );
+        $this->{cf} = Cache::File->new(cache_root=>$this->{cache_root}, default_expires => $this->{default_expires} );
     }
 
     $this->{key_space} = "CK" unless $this->{key_space};
