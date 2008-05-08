@@ -3,6 +3,8 @@
 # $Id$
 
 use strict;
+use Carp;
+
 use CGI;
 use CGI::Carp qw(fatalsToBrowser);
 use Cache::File;
@@ -11,69 +13,94 @@ use LWP::UserAgent;
 
 # wget -O MIRRORED.BY http://www.cpan.org/MIRRORED.BY
 
-my @mirrors = (
-  # "ftp://cpan-sj.viaverio.com/pub/CPAN/",
-  # "http://ftp.wayne.edu/cpan/",
-    "http://cpan.calvin.edu/pub/CPAN",
-);
-my $mirror = $mirrors[ rand @mirrors ];
+# new {{{
+sub new {
+    my $class = shift;
+    my $this  = bless {@_}, $class;
 
-my $cgi   = new CGI;
-my $pinfo = $ENV{PATH_INFO};
-   $pinfo =~ s/^\///;
-my $CK    = "CPM:$pinfo";
-my $again = 0;
+    $this->{cgi} = new CGI unless $this->{cgi};
+    unless( $this->{cf} ) {
+        $this->{cache_root}      = "/tmp/ccp/" unless $this->{cache_root};
+        $this->{default_expires} = "2 day"     unless $this->{default_expires};
 
-THE_TOP: # we regen the cache each time just in case things aren't flushed correctly... probably don't need to though
-my $cache = Cache::File->new(cache_root=>"/home/voltar/nobody.cache/", default_expires => '2 day' );
-if( $cache->exists($CK) and $cache->exists("$CK.hdr") ) { our $VAR1;
-    my $res = eval $cache->get( "$CK.hdr" ); die "problem finding cache entry\n" if $@;
+        my $cache = Cache::File->new(cache_root=>$this->{cache_root}, default_expires => $this->{default_expires} );
+    }
 
-    my $status = $res->status_line;
+    $this->{key_space} = "CK" unless $this->{key_space};
 
-    warn "[DEBUG] status: $status";
-    print $cgi->header(-status=>$status, -type=>$res->header( 'content-type' ));
+    unless( $this->{ua} ) {
+        my $ua = $this->{ua} = new LWP::UserAgent;
+           $ua->agent($this->{agent} ? $this->{agent} : "PPC/0.1 (paul's proxy cache perlmonks-id=16186)");
+    }
 
-    my $fh  = $cache->handle( $CK, "<" ) or die "problem finding cache entry\n";
+    croak "there are no default mirrors, they must be set" unless $this->{mirrors};
 
-    if( $res->is_success ) {
-        my $buf;
-        while( read $fh, $buf, 4096 ) {
-            print $buf;
+    return $this;
+}
+# }}}
+# run {{{
+sub run {
+    my $this   = shift;
+    my $mirror = $this->{mirrors}[ rand @{$this->{mirrors}} ];
+    my $pinfo  = $ENV{PATH_INFO};
+       $pinfo =~ s/^\///;
+
+    my $CK    = "$this->{key_space}:$pinfo";
+    my $cgi   = $this->{cgi};
+    my $again = 0;
+
+    THE_TOP:
+    my $cache = $this->{cf};
+    if( $cache->exists($CK) and $cache->exists("$CK.hdr") ) { our $VAR1;
+        my $res = eval $cache->get( "$CK.hdr" ); die "problem finding cache entry\n" if $@;
+
+        my $status = $res->status_line;
+
+        warn "[DEBUG] status: $status";
+        print $cgi->header(-status=>$status, -type=>$res->header( 'content-type' ));
+
+        my $fh  = $cache->handle( $CK, "<" ) or die "problem finding cache entry\n";
+
+        if( $res->is_success ) {
+            my $buf;
+            while( read $fh, $buf, 4096 ) {
+                print $buf;
+            }
+
+        } else {
+            print $status;
         }
 
-    } else {
-        print $status;
+        close $fh;
+
+        unless( $res->is_success ) {
+            warn "[DEBUG] removing $CK";
+            $cache->remove($CK);
+        }
+
+        return;
+
+    } elsif( not $again ) {
+        $again = 1;
+
+        my $ua = new LWP::UserAgent;
+           $ua->agent("CPM/0.1 (voltarian cpan proxy-cache)");
+
+        $cache->set($CK, 1); # doesn't seem like we should ahve to do this, but apparently we do
+
+        warn "[DEBUG] getting $mirror/$pinfo";
+
+        my $fh = $cache->handle( $CK, ">" );
+        my $request  = HTTP::Request->new(GET => "$mirror/$pinfo");
+        my $response = $ua->request($request, sub { my $chunk = shift; print $fh $chunk });
+        close $fh;
+
+        warn "[DEBUG] setting $CK";
+        $cache->set("$CK.hdr", Dumper($response));
+
+        goto THE_TOP;
     }
 
-    close $fh;
-
-    unless( $res->is_success ) {
-        warn "[DEBUG] removing $CK";
-        $cache->remove($CK);
-    }
-
-    exit 0;
-
-} elsif( not $again ) {
-    $again = 1;
-
-    my $ua = new LWP::UserAgent;
-       $ua->agent("CPM/0.1 (voltarian cpan proxy-cache)");
-
-    $cache->set($CK, 1); # doesn't seem like we should ahve to do this, but apparently we do
-
-    warn "[DEBUG] getting $mirror/$pinfo";
-
-    my $fh = $cache->handle( $CK, ">" );
-    my $request  = HTTP::Request->new(GET => "$mirror/$pinfo");
-    my $response = $ua->request($request, sub { my $chunk = shift; print $fh $chunk });
-    close $fh;
-
-    warn "[DEBUG] setting $CK";
-    $cache->set("$CK.hdr", Dumper($response));
-
-    goto THE_TOP;
+    die "problem fetching $pinfo. :(\n";
 }
-
-die "problem fetching $pinfo. :(\n";
+# }}}
