@@ -4,3 +4,4 @@ README
 t/01_mg_new_auto.t
 MANIFEST
 example_cpan_caching_proxy.pl
+CachingProxy.pod

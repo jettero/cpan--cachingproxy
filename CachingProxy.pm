@@ -24,18 +24,18 @@ sub new {
         $this->{cgi} = new CGI;
     }
 
-    unless( $this->{cf} ) {
+    unless( $this->{cache_object} ) {
         $this->{cache_root}      = "/tmp/ccp/" unless $this->{cache_root};
         $this->{default_expires} = "2 day"     unless $this->{default_expires};
 
-        $this->{cf} = Cache::File->new(cache_root=>$this->{cache_root}, default_expires => $this->{default_expires} );
+        $this->{cache_object} = Cache::File->new(cache_root=>$this->{cache_root}, default_expires => $this->{default_expires} );
     }
 
     $this->{key_space} = "CK" unless $this->{key_space};
 
     unless( $this->{ua} ) {
         my $ua = $this->{ua} = new LWP::UserAgent;
-           $ua->agent($this->{agent} ? $this->{agent} : "PPC/0.1 (paul's proxy cache perlmonks-id=16186)");
+           $ua->agent($this->{agent} ? $this->{agent} : "CCP/$VERSION (paul's CPAN caching proxy / perlmonks-id=16186)");
     }
 
     croak "there are no default mirrors, they must be set" unless $this->{mirrors};
@@ -55,7 +55,7 @@ sub run {
     my $again = 0;
 
     THE_TOP:
-    my $cache = $this->{cf};
+    my $cache = $this->{cache_object};
     if( $cache->exists($CK) and $cache->exists("$CK.hdr") ) { our $VAR1;
         my $res = eval $cache->get( "$CK.hdr" ); die "problem finding cache entry\n" if $@;
 

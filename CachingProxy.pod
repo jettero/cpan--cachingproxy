@@ -1,0 +1,101 @@
+=head1 NAME
+
+CPAN::CachingProxy - A very simple lightweight CGI based Caching Proxy
+
+=head1 SYNOPSIS
+
+    use strict;
+    use CPAN::CachingProxy;
+    use CGI;
+    use CGI::Carp qw(fatalsToBrowser);
+
+    my $cache = CPAN::CachingProxy->new(mirrors=>['http://www.perl.com/CPAN/bug']);
+       $cache->run;
+
+=head1 new() arguments
+
+The new function takes quite a few arguments in the usual hash-like manor.  Here
+is an example:
+
+  while( my $cgi = new CGI::Fast ) { CGI::Carp->import('fatalsToBrowser');
+      my $cache =
+          CPAN::CachingProxy->new(
+              mirrors => ['http://www.perl.com/CPAN/bug'],
+              cgi     => $cgi,
+              agent   => "MyProxy/0.1 (Hurray!!)",
+          );
+
+      $cache->run;
+  )
+
+=head2 mirrors [required]
+
+The only required argument is C<mirrors>.  It must be an arrayref of mirrors.
+CCP will choose randomly among them.  WARNING: The author has had problems
+choosing randomly between several mirrors -- they don't always have the same
+files!  It is therefore recommended to choose one favorite.
+
+=head2 cgi
+
+CCP will choose a default CGI.pm if you don't specify one.  The main reason to
+choose another is to use FastCGI, something fancier, something of your own
+devising.
+
+=head2 cache_object
+
+By default, CCP will use Cache::File as the caching mechanism.  You may choose
+anything you like.  There are many other choices.  CCP will expect whichever
+module you choose to act exactly like Cache::File (including the C<handle()>
+method, which you will not find in many Cache modules).
+
+=head3 cache_root
+
+If you choose the default cache object (and only if CCP generates it), this
+option indicates the directory in which you wish to store the cache.  By
+default, it will choose: /tmp/ccp/
+
+=head3 default_expires
+
+If you choose the default cache object (and only if CCP generates it), this
+option indicates the max age of the cache entries.  By default it's set to:
+"2 day".  For more information on the formating of this option, see
+L<Cache::Entry>.
+
+=head2 ua
+
+The default user agent is L<LWP::UserAgent>.  You may choose an alternate if you
+like.  A likely candidate would be L<LWP::ParanoidAgent>.  It is technically
+possible to hijack a proxy of this type to pull locations inside your private
+networks.  It is somewhat unlikely in B<this> module since it prepends your
+selected mirror to all the URLs it processes.  But it's still technically
+possible.
+
+=head3 agent
+
+If you choose to use the default agent and let CCP generate the object, this
+option will set the user agent string to something other than the default:
+ 
+    CCP/$VERSION (paul's CPAN caching proxy / perlmonks-id=16186)
+
+=head1 AUTHOR
+
+Paul Miller C<jettero@cpan.org>
+
+I am using this software in my own projects...  If you find bugs, please please
+please let me know.
+
+I normally hang out on #perl on freenode, so you can try to get immediate
+gratification there if you like.  L<irc://irc.freenode.net/perl>
+
+I also check rt.cpan.org from time to time.
+
+=head1 COPYRIGHT
+
+Copyright (c) 2008 Paul Miller -- LGPL [Software::License::LGPL_2_1]
+
+    perl -MSoftware::License::LGPL_2_1 -e '$l = Software::License::LGPL_2_1->new({holder=>"Paul Miller"});
+      print $l->fulltext' | less
+
+=head1 SEE ALSO
+
+perl(1), L<Cache>, L<Cache::File>, L<Cache::Entry>, L<LWP::UserAgent>, L<CGI>, L<CGI::Carp>
