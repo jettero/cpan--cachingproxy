@@ -10,7 +10,8 @@ use Cache::File;
 use Data::Dumper;
 use LWP::UserAgent;
 
-our $VERSION = "1.0.0";
+use version;
+our $VERSION = version->new("1.0.0")->numify;
 
 # wget -O MIRRORED.BY http://www.cpan.org/MIRRORED.BY
 
