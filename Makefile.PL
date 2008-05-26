@@ -10,7 +10,8 @@ WriteMakefile(
         'Software::License::LGPL_2_1' => 0,
         'Cache::File'                 => 0,
         'Data::Dumper'                => 0,
-        'LWP'
+        LWP     => 0,
+        version => 0,
     },
 
     # clean => { FILES => "m*.txt map.png *.log *.map [0-9][0-9]_*.xml m*.xml 10_groups.* map.dumper.* log" },
