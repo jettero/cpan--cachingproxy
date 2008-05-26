@@ -11,7 +11,7 @@ use Data::Dumper;
 use LWP::UserAgent;
 
 use version;
-our $VERSION = qv(1.0.1);
+our $VERSION = qv('1.0.1');
 
 # wget -O MIRRORED.BY http://www.cpan.org/MIRRORED.BY
 
