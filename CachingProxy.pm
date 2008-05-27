@@ -96,8 +96,11 @@ sub run {
 
         warn "[DEBUG] getting $mirror/$pinfo";
 
+        my $URL = "$mirror/$pinfo";
+           $URL =~ s/\/{2,}/\//g;
+
         my $fh = $cache->handle( $CK, ">" );
-        my $request  = HTTP::Request->new(GET => "$mirror/$pinfo");
+        my $request  = HTTP::Request->new(GET => $URL);
         my $response = $ua->request($request, sub { my $chunk = shift; print $fh $chunk });
         close $fh;
 
