@@ -79,7 +79,7 @@ possible.
 If you choose to use the default agent and let CCP generate the object, this
 option will set the user agent string to something other than the default:
  
-    CCP/$VERSION (paul's CPAN caching proxy / perlmonks-id=16186)
+    CCP/$VERSION (Paul's CPAN caching proxy / perlmonks-id=16186)
 
 =head1 AUTHOR
 

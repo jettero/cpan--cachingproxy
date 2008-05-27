@@ -36,7 +36,7 @@ sub new {
 
     unless( $this->{ua} ) {
         my $ua = $this->{ua} = new LWP::UserAgent;
-           $ua->agent($this->{agent} ? $this->{agent} : "CCP/$VERSION (paul's CPAN caching proxy / perlmonks-id=16186)");
+           $ua->agent($this->{agent} ? $this->{agent} : "CCP/$VERSION (Paul's CPAN caching proxy / perlmonks-id=16186)");
     }
 
     croak "there are no default mirrors, they must be set" unless $this->{mirrors};
