@@ -62,7 +62,7 @@ sub run {
 
         my $status = $res->status_line;
 
-        warn "[DEBUG] status: $status";
+        warn "[DEBUG] status: $status" if $this->{debug};
         print $cgi->header(-status=>$status, -type=>$res->header( 'content-type' ));
 
         my $fh  = $cache->handle( $CK, "<" ) or die "problem finding cache entry\n";
@@ -80,7 +80,7 @@ sub run {
         close $fh;
 
         unless( $res->is_success ) {
-            warn "[DEBUG] removing $CK";
+            warn "[DEBUG] removing $CK" if $this->{debug};
             $cache->remove($CK);
         }
 
@@ -94,7 +94,7 @@ sub run {
 
         $cache->set($CK, 1); # doesn't seem like we should ahve to do this, but apparently we do
 
-        warn "[DEBUG] getting $mirror/$pinfo";
+        warn "[DEBUG] getting $mirror/$pinfo" if $this->{debug};
 
         my $URL = "$mirror/$pinfo";
            $URL =~ s/\/{2,}/\//g;
@@ -104,7 +104,7 @@ sub run {
         my $response = $ua->request($request, sub { my $chunk = shift; print $fh $chunk });
         close $fh;
 
-        warn "[DEBUG] setting $CK";
+        warn "[DEBUG] setting $CK" if $this->{debug};
         $cache->set("$CK.hdr", Dumper($response));
 
         goto THE_TOP;

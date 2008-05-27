@@ -1,5 +1,7 @@
 1.0.2: Tue May 27 10:17:15 EDT 2008
    - minor doc changes
+   - minor updates to the backend URL construction
+   - made the DEBUG messages optoinal and not default
 
 1.0.1: Mon May 26 15:32:02 EDT 2008
    - I might as well do a new version of everything using

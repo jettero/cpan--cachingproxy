@@ -58,11 +58,10 @@ If you choose the default cache object (and only if CCP generates it), this
 option indicates the directory in which you wish to store the cache.  By
 default, it will choose: /tmp/ccp/
 
-=head3 key_space
+=head3 debug
 
-CCP uses the root keyspace "CK" and stores cache entries under the name
-"CK:$path_info".  If you're using your cache for other things and this somehow
-clashes, you can override the root namespace with this argument.
+You might find odd little problems with this module.  If you do, it might be
+helpful to turn on debugging and view your webserver error log.
 
 =head3 default_expires
 
@@ -70,6 +69,12 @@ If you choose the default cache object (and only if CCP generates it), this
 option indicates the max age of the cache entries.  By default it's set to:
 "2 day".  For more information on the formating of this option, see
 L<Cache::Entry>.
+
+=head3 key_space
+
+CCP uses the root keyspace "CK" and stores cache entries under the name
+"CK:$path_info".  If you're using your cache for other things and this somehow
+clashes, you can override the root namespace with this argument.
 
 =head2 ua
 
