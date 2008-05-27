@@ -3,6 +3,8 @@
    - minor updates to the backend URL construction
    - made the DEBUG messages optoinal and not default
    - fixed a very minor bug in the mirror urlification
+   - (wow, use version has to be on the same line as our $VERSION
+      for older EUMM)
 
 1.0.1: Mon May 26 15:32:02 EDT 2008
    - I might as well do a new version of everything using
