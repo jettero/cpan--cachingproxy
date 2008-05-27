@@ -94,10 +94,10 @@ sub run {
 
         $cache->set($CK, 1); # doesn't seem like we should ahve to do this, but apparently we do
 
-        warn "[DEBUG] getting $mirror/$pinfo" if $this->{debug};
-
         my $URL = "$mirror/$pinfo";
-           $URL =~ s/\/{2,}/\//g;
+         # $URL =~ s/\/{2,}/\//g;
+
+        warn "[DEBUG] getting $URL" if $this->{debug};
 
         my $fh = $cache->handle( $CK, ">" );
         my $request  = HTTP::Request->new(GET => $URL);
