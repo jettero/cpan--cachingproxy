@@ -1,3 +1,6 @@
+1.0.2: Tue May 27 10:17:15 EDT 2008
+   - minor doc changes
+
 1.0.1: Mon May 26 15:32:02 EDT 2008
    - I might as well do a new version of everything using
      version.pm while I wait for all my CPAN deletes to go
