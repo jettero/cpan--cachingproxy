@@ -2,6 +2,7 @@
    - minor doc changes
    - minor updates to the backend URL construction
    - made the DEBUG messages optoinal and not default
+   - fixed a very minor bug in the mirror urlification
 
 1.0.1: Mon May 26 15:32:02 EDT 2008
    - I might as well do a new version of everything using
