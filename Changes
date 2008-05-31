@@ -1,3 +1,7 @@
+1.0.3: Sat May 31 09:22:38 EDT 2008
+   - wow, wasn't using the this->{ua}.  instantiated it, but
+     never used it.  brilliant.
+
 1.0.2: Tue May 27 10:17:15 EDT 2008
    - minor doc changes
    - minor updates to the backend URL construction

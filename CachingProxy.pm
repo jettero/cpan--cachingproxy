@@ -10,7 +10,7 @@ use Cache::File;
 use Data::Dumper;
 use LWP::UserAgent;
 
-use version; our $VERSION = qv('1.0.2');
+use version; our $VERSION = qv('1.0.3');
 
 # wget -O MIRRORED.BY http://www.cpan.org/MIRRORED.BY
 
@@ -88,9 +88,6 @@ sub run {
     } elsif( not $again ) {
         $again = 1;
 
-        my $ua = new LWP::UserAgent;
-           $ua->agent("CPM/0.1 (voltarian cpan proxy-cache)");
-
         $cache->set($CK, 1); # doesn't seem like we should ahve to do this, but apparently we do
 
         my $URL = "$mirror/$pinfo";
@@ -100,7 +97,7 @@ sub run {
 
         my $fh = $cache->handle( $CK, ">" );
         my $request  = HTTP::Request->new(GET => $URL);
-        my $response = $ua->request($request, sub { my $chunk = shift; print $fh $chunk });
+        my $response = $this->{ua}->request($request, sub { my $chunk = shift; print $fh $chunk });
         close $fh;
 
         warn "[DEBUG] setting $CK" if $this->{debug};
