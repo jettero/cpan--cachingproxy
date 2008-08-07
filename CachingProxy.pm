@@ -48,6 +48,7 @@ sub run {
     my $mirror = $this->{mirrors}[ rand @{$this->{mirrors}} ];
     my $pinfo  = $cgi->path_info;
        $pinfo =~ s/^\///;
+       $mirror=~ s/\/$//;
 
     my $CK    = "$this->{key_space}:$pinfo";
     my $again = 0;
