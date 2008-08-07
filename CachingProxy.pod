@@ -20,9 +20,10 @@ is an example:
   while( my $cgi = new CGI::Fast ) { CGI::Carp->import('fatalsToBrowser');
       my $cache =
           CPAN::CachingProxy->new(
-              mirrors => ['http://www.perl.com/CPAN/bug'],
-              cgi     => $cgi,
-              agent   => "MyProxy/0.1 (Hurray!!)",
+              mirrors   => ['http://www.perl.com/CPAN/bug'],
+              key_space => "MyCache1", # increment to reset cache
+              cgi       => $cgi,
+              agent     => "MyProxy/0.1 (Hurray!!)",
           );
 
       $cache->run;
@@ -75,6 +76,12 @@ L<Cache::Entry>.
 CCP uses the root keyspace "CK" and stores cache entries under the name
 "CK:$path_info".  If you're using your cache for other things and this somehow
 clashes, you can override the root namespace with this argument.
+
+You can also use this to reset the cache.  On most unix-like platforms, the
+directory with the cache in it will be webserver writable, but not necessarily
+writable by you.  If you increment or change the key_space, it'll have the
+effect of resetting the cache.  The older entries will expire out on their own
+and so you can forget about them.
 
 =head2 ua
 

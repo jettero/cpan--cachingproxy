@@ -1,6 +1,4 @@
 #!/usr/bin/perl
-# vi:tw=0:
-# $Id$
 
 package CPAN::CachingProxy;
 
@@ -10,7 +8,7 @@ use Cache::File;
 use Data::Dumper;
 use LWP::UserAgent;
 
-use version; our $VERSION = qv('1.0.3');
+our $VERSION = 1.1;
 
 # wget -O MIRRORED.BY http://www.cpan.org/MIRRORED.BY
 
@@ -46,12 +44,12 @@ sub new {
 # run {{{
 sub run {
     my $this   = shift;
+    my $cgi    = $this->{cgi};
     my $mirror = $this->{mirrors}[ rand @{$this->{mirrors}} ];
-    my $pinfo  = $ENV{PATH_INFO};
+    my $pinfo  = $cgi->path_info;
        $pinfo =~ s/^\///;
 
     my $CK    = "$this->{key_space}:$pinfo";
-    my $cgi   = $this->{cgi};
     my $again = 0;
 
     THE_TOP:
@@ -64,19 +62,17 @@ sub run {
         warn "[DEBUG] status: $status" if $this->{debug};
         print $cgi->header(-status=>$status, -type=>$res->header( 'content-type' ));
 
-        my $fh  = $cache->handle( $CK, "<" ) or die "problem finding cache entry\n";
-
         if( $res->is_success ) {
+            my $fh = $cache->handle( $CK, "<" ) or die "problem finding cache entry\n";
             my $buf;
             while( read $fh, $buf, 4096 ) {
                 print $buf;
             }
+            close $fh;
 
         } else {
             print $status;
         }
-
-        close $fh;
 
         unless( $res->is_success ) {
             warn "[DEBUG] removing $CK" if $this->{debug};
