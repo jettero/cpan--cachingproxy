@@ -1,3 +1,8 @@
+1.2: Tue Aug 12 07:19:25 EDT 2008
+   - I taught the cache about an alternate expiration for the
+     index files.  It makes sense to only cache them for a
+     shorter while...
+
 1.1: Thu Aug  7 16:04:01 EDT 2008
    - ditched version.pm
    - re-wrote a couple of examples and docs

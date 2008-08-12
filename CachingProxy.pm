@@ -8,7 +8,7 @@ use Cache::File;
 use Data::Dumper;
 use LWP::UserAgent;
 
-our $VERSION = 1.1;
+our $VERSION = 1.2;
 
 # wget -O MIRRORED.BY http://www.cpan.org/MIRRORED.BY
 
@@ -25,6 +25,7 @@ sub new {
     unless( $this->{cache_object} ) {
         $this->{cache_root}      = "/tmp/ccp/" unless $this->{cache_root};
         $this->{default_expires} = "2 day"     unless $this->{default_expires};
+        $this->{index_expires}   = "3 hour"    unless $this->{index_expires};
 
         $this->{cache_object} = Cache::File->new(cache_root=>$this->{cache_root}, default_expires => $this->{default_expires} );
     }
@@ -85,20 +86,24 @@ sub run {
     } elsif( not $again ) {
         $again = 1;
 
-        $cache->set($CK, 1); # doesn't seem like we should ahve to do this, but apparently we do
+        my $expire = $this->{default_expire};
+           $expire = $this->{index_expire}
+               if $pinfo =~ m/(?:03modlist\.data|02packages\.details\.txt|01mailrc\.txt)/;
+
+        $cache->set($CK, 1, $expire ); # doesn't seem like we should have to do this, but apparently we do
 
         my $URL = "$mirror/$pinfo";
          # $URL =~ s/\/{2,}/\//g;
 
         warn "[DEBUG] getting $URL" if $this->{debug};
 
-        my $fh = $cache->handle( $CK, ">" );
+        my $fh = $cache->handle( $CK, ">", $expire );
         my $request  = HTTP::Request->new(GET => $URL);
         my $response = $this->{ua}->request($request, sub { my $chunk = shift; print $fh $chunk });
         close $fh;
 
         warn "[DEBUG] setting $CK" if $this->{debug};
-        $cache->set("$CK.hdr", Dumper($response));
+        $cache->set("$CK.hdr", Dumper($response), $expire);
 
         goto THE_TOP;
     }

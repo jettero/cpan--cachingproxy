@@ -66,10 +66,20 @@ helpful to turn on debugging and view your webserver error log.
 
 =head3 default_expires
 
-If you choose the default cache object (and only if CCP generates it), this
-option indicates the max age of the cache entries.  By default it's set to:
-"2 day".  For more information on the formating of this option, see
-L<Cache::Entry>.
+This sets the max age of the cache entries.  The value is passed to the C<set()>
+and C<handle()> calls as the expiry argument.  See L<Cache::Entry> for further
+information.  This value defaults to C<"2 day">.
+
+=head3 index_expires
+
+If the path info matches this regular expression, instead of using
+C<default_expires>, the value C<index_expires> will be used for the expiry
+argument to C<set()> and C<handle()>.
+
+    $pinfo =~ m/(?:03modlist\.data|02packages\.details\.txt|01mailrc\.txt)/;
+
+It makes sense to cache the CPAN indexes for a shorter amount of time.
+Therefore, this value defaults to only C<"3 hour">.
 
 =head3 key_space
 
