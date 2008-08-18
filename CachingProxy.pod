@@ -64,22 +64,27 @@ default, it will choose: /tmp/ccp/
 You might find odd little problems with this module.  If you do, it might be
 helpful to turn on debugging and view your webserver error log.
 
-=head3 default_expires
+=head3 default_expire
 
 This sets the max age of the cache entries.  The value is passed to the C<set()>
 and C<handle()> calls as the expiry argument.  See L<Cache::Entry> for further
 information.  This value defaults to C<"2 day">.
 
-=head3 index_expires
+=head3 index_expire
 
 If the path info matches this regular expression, instead of using
-C<default_expires>, the value C<index_expires> will be used for the expiry
+C<default_expire>, the value C<index_expire> will be used for the expiry
 argument to C<set()> and C<handle()>.
 
     $pinfo =~ m/(?:03modlist\.data|02packages\.details\.txt|01mailrc\.txt)/;
 
 It makes sense to cache the CPAN indexes for a shorter amount of time.
 Therefore, this value defaults to only C<"3 hour">.
+
+=head3 error_expire
+
+The amount of time to cache the result when an error is encountered.  The
+default is C<"15 minutes">.
 
 =head3 key_space
 
@@ -108,6 +113,13 @@ If you choose to use the default agent and let CCP generate the object, this
 option will set the user agent string to something other than the default:
  
     CCP/$VERSION (Paul's CPAN caching proxy / perlmonks-id=16186)
+
+=head3 activity_timeout
+
+If you chose to use the default agent and let CCP generate the oobject, this
+option will set the C<$ua->timeout()> (see L<LWP::UserAgent> for details).  It
+defaults to 12 seconds and will not set the C<$ua->timeout()> at all if given an
+undefined value.
 
 =head1 AUTHOR
 

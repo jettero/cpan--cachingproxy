@@ -8,7 +8,7 @@ use Cache::File;
 use Data::Dumper;
 use LWP::UserAgent;
 
-our $VERSION = 1.2;
+our $VERSION = 1.3;
 
 # wget -O MIRRORED.BY http://www.cpan.org/MIRRORED.BY
 
@@ -23,19 +23,30 @@ sub new {
     }
 
     unless( $this->{cache_object} ) {
-        $this->{cache_root}      = "/tmp/ccp/" unless $this->{cache_root};
-        $this->{default_expires} = "2 day"     unless $this->{default_expires};
-        $this->{index_expires}   = "3 hour"    unless $this->{index_expires};
+        $this->{cache_root}      = "/tmp/ccp/" unless exists $this->{cache_root};
+        $this->{default_expire} = "2 day"     unless exists $this->{default_expire};
+        $this->{index_expire}   = "3 hour"    unless exists $this->{index_expire};
+        $this->{error_expire}   = "15 minute" unless exists $this->{error_expire};
 
-        $this->{cache_object} = Cache::File->new(cache_root=>$this->{cache_root}, default_expires => $this->{default_expires} );
+        $this->{cache_object} = Cache::File->new(cache_root=>$this->{cache_root}, default_expires => $this->{default_expire} );
     }
 
-    $this->{key_space} = "CK" unless $this->{key_space};
+    $this->{key_space}        = "CK" unless $this->{key_space};
 
     unless( $this->{ua} ) {
         my $ua = $this->{ua} = new LWP::UserAgent;
            $ua->agent($this->{agent} ? $this->{agent} : "CCP/$VERSION (Paul's CPAN caching proxy / perlmonks-id=16186)");
+           if( exists $this->{activity_timeout} ) {
+               if( defined (my $at = $this->{activity_timeout}) ) {
+                   $ua->timeout($at);
+               }
+
+           } else {
+               $ua->timeout(12);
+           }
     }
+
+    $this->{ua}->timeout( $this->{activity_timeout} ) if defined $this->{activity_timeout};
 
     croak "there are no default mirrors, they must be set" unless $this->{mirrors};
 
@@ -87,8 +98,7 @@ sub run {
         $again = 1;
 
         my $expire = $this->{default_expire};
-           $expire = $this->{index_expire}
-               if $pinfo =~ m/(?:03modlist\.data|02packages\.details\.txt|01mailrc\.txt)/;
+           $expire = $this->{index_expire} if $pinfo =~ m/(?:03modlist\.data|02packages\.details\.txt|01mailrc\.txt)/;
 
         $cache->set($CK, 1, $expire ); # doesn't seem like we should have to do this, but apparently we do
 
@@ -104,6 +114,12 @@ sub run {
 
         warn "[DEBUG] setting $CK" if $this->{debug};
         $cache->set("$CK.hdr", Dumper($response), $expire);
+
+        # if there was an error (which we don't know until ex post facto), go back and fix the expiry
+        if( defined $this->{error_expire} and not $response->is_success ) {
+            $cache->set_expiry( $CK       => $this->{error_expire} );
+            $cache->set_expiry( "$CK.hdr" => $this->{error_expire} );
+        }
 
         goto THE_TOP;
     }
