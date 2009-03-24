@@ -8,7 +8,7 @@ use Cache::File;
 use Data::Dumper;
 use LWP::UserAgent;
 
-our $VERSION = 1.3;
+our $VERSION = 1.4;
 
 # wget -O MIRRORED.BY http://www.cpan.org/MIRRORED.BY
 
@@ -24,11 +24,12 @@ sub new {
 
     unless( $this->{cache_object} ) {
         $this->{cache_root}      = "/tmp/ccp/" unless exists $this->{cache_root};
-        $this->{default_expire} = "2 day"     unless exists $this->{default_expire};
-        $this->{index_expire}   = "3 hour"    unless exists $this->{index_expire};
-        $this->{error_expire}   = "15 minute" unless exists $this->{error_expire};
+        $this->{default_expire} = "2 day"      unless exists $this->{default_expire};
+        $this->{index_expire}   = "3 hour"     unless exists $this->{index_expire};
+        $this->{error_expire}   = "15 minute"  unless exists $this->{error_expire};
 
-        $this->{cache_object} = Cache::File->new(cache_root=>$this->{cache_root}, default_expires => $this->{default_expire} );
+        $this->{index_regexp}   = qr/(?:03modlist\.data|02packages\.details\.txt|01mailrc\.txt)/ unless exists $this->{index_regexp};
+        $this->{cache_object}   = Cache::File->new(cache_root=>$this->{cache_root}, default_expires => $this->{default_expire} );
     }
 
     $this->{key_space}        = "CK" unless $this->{key_space};
@@ -98,7 +99,7 @@ sub run {
         $again = 1;
 
         my $expire = $this->{default_expire};
-           $expire = $this->{index_expire} if $pinfo =~ m/(?:03modlist\.data|02packages\.details\.txt|01mailrc\.txt)/;
+           $expire = $this->{index_expire} if $pinfo =~ $this->{index_regexp};
 
         $cache->set($CK, 1, $expire ); # doesn't seem like we should have to do this, but apparently we do
 
