@@ -1,4 +1,9 @@
-1.4.1: Tue Mar 24 14:29:58 EDT 2009
+1.4002: Wed Apr  1 06:49:50 EDT 2009
+   - t/01_mg-new_auto.t is failing on like 10% of the perl5.10s,
+     but why?  It makes no sense.  I've made it more verbose...
+     what else can I do?
+
+1.4001: Tue Mar 24 14:29:58 EDT 2009
    - pulled in chorny's Makefile.PL
      (http://github.com/chorny/cpan--cachingproxy/tree/master)
    - The new META.yml stuff is really neat.
