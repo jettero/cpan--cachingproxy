@@ -4,10 +4,14 @@ use Test;
 
 plan tests => 2;
 
-eval 'use CPAN::CachingProxy;';
+{
+    my $r = eval 'use CPAN::CachingProxy; 1';
+    warn " [load fail]: $@\n" unless $r;
+    ok($r, 1);
+}
 
-ok( not $@ );
-
-eval 'my $n = CPAN::CachingProxy->new(mirrors=>["blah"])';
-
-ok( not $@ );
+{
+    my $r = eval 'my $n = CPAN::CachingProxy->new(mirrors=>["blah"]); 1';
+    warn " [new fail]: $@\n" unless $r;
+    ok($r, 1);
+}
