@@ -108,8 +108,8 @@ sub run {
         close $fh;
 
         unless( $response->is_success ) {
-            $this->my_copy_hdr($response, "cache miss");
-            $cache->set($CK => "FAIL: " . $response->status_line);
+            $this->my_copy_hdr($response, "cache miss [fail]");
+            $cache->set($CK => "FAIL: " . $response->status_line . "\n");
         }
 
         warn "[DEBUG] setting $CK\n" if $this->{debug};
