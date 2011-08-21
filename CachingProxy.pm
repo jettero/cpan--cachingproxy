@@ -27,12 +27,13 @@ sub new {
         $this->{default_expire} = "2 day"      unless exists $this->{default_expire};
         $this->{index_expire}   = "3 hour"     unless exists $this->{index_expire};
         $this->{error_expire}   = "15 minute"  unless exists $this->{error_expire};
+      # $this->{ignore_etags};
 
         $this->{index_regexp}   = qr/(?:03modlist\.data|02packages\.details\.txt|01mailrc\.txt)/ unless exists $this->{index_regexp};
         $this->{cache_object}   = Cache::File->new(cache_root=>$this->{cache_root}, default_expires => $this->{default_expire} );
     }
 
-    $this->{key_space}        = "CK" unless $this->{key_space};
+    $this->{key_space} = "CK" unless $this->{key_space};
 
     unless( $this->{ua} ) {
         my $ua = $this->{ua} = new LWP::UserAgent;
@@ -63,11 +64,22 @@ sub run {
        $pinfo =~ s/^\///;
        $mirror=~ s/\/$//;
 
-    my $CK    = "$this->{key_space}:$pinfo";
+    my $CK = "$this->{key_space}:$pinfo";
+
+    my $URL = "$mirror/$pinfo";
+     # $URL =~ s/\/{2,}/\//g;
 
     my $cache = $this->{cache_object};
     if( $cache->exists($CK) and $cache->exists("$CK.hdr") ) { our $VAR1;
         my $res = eval $cache->get( "$CK.hdr" ); die "problem finding cache entry\n" if $@;
+
+        unless( $this->{ignore_etags} ) {
+            if( my $et = $res->header('etag') ) {
+                my $_et = eval { $this->{ua}->head($URL)->header('etag') };
+
+                warn "[DEBUG] $et =? $_et?\n";
+            }
+        }
 
         $this->my_copy_hdr($res, "cache hit");
 
@@ -83,9 +95,6 @@ sub run {
            $expire = $this->{index_expire} if $pinfo =~ $this->{index_regexp};
 
         $cache->set($CK, 1, $expire ); # doesn't seem like we should have to do this, but apparently we do
-
-        my $URL = "$mirror/$pinfo";
-         # $URL =~ s/\/{2,}/\//g;
 
         warn "[DEBUG] getting $URL\n" if $this->{debug};
 
