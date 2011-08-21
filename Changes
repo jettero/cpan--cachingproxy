@@ -1,3 +1,10 @@
+1.5000: Sun Aug 21 2011
+   - I made sure needed slashes are are in the URL.  I was seeing
+     a trouble where http://host/cpan-proxy was giving incorrect
+     results in my browser, but http://host/cpan-proxy/ was fine.
+     There is now a 302 redirect to add the tail-slash if it is
+     absent — specifically: when path_info() is “”.
+
 1.4002: Wed Apr  1 06:49:50 EDT 2009
    - t/01_mg-new_auto.t is failing on like 10% of the perl5.10s,
      but why?  It makes no sense.  I've made it more verbose...

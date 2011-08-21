@@ -8,7 +8,7 @@ use Cache::File;
 use Data::Dumper;
 use LWP::UserAgent;
 
-our $VERSION = 1.4002;
+our $VERSION = "1.5000";
 
 # wget -O MIRRORED.BY http://www.cpan.org/MIRRORED.BY
 
