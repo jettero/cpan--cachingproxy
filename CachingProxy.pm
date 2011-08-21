@@ -71,7 +71,7 @@ sub run {
 
         my $status = $res->status_line;
 
-        warn "[DEBUG] status: $status" if $this->{debug};
+        warn "[DEBUG] (cached) status: $status" if $this->{debug};
         print $cgi->header(-status=>$status, -type=>$res->header( 'content-type' ));
 
         if( $res->is_success ) {
@@ -104,11 +104,24 @@ sub run {
 
         warn "[DEBUG] getting $URL" if $this->{debug};
 
-        print $cgi->header(-status=>$status, -type=>$res->header( 'content-type' ));
-
-        my $fh = $cache->handle( $CK, ">", $expire );
+        my $fh       = $cache->handle( $CK, ">", $expire );
         my $request  = HTTP::Request->new(GET => $URL);
-        my $response = $this->{ua}->request($request, sub { my $chunk = shift; print $fh $chunk });
+
+        my $announced_header;
+        my $response = $this->{ua}->request($request, sub {
+            my $chunk = shift;
+
+            unless( $announced_header ) {
+                $announced_header = 1;
+                my $res = shift;
+                my $status = $res->status_line;
+                warn "[DEBUG] (not cached) status: $status" if $this->{debug};
+                print $cgi->header(-status=>$status, -type=>$res->header( 'content-type' ));
+            }
+
+            print $fh $chunk;
+            print     $chunk;
+        });
         close $fh;
 
         warn "[DEBUG] setting $CK" if $this->{debug};
