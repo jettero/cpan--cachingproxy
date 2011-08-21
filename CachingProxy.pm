@@ -68,6 +68,7 @@ sub run {
     my $cache = $this->{cache_object};
     if( $cache->exists($CK) and $cache->exists("$CK.hdr") ) { our $VAR1;
         my $res = eval $cache->get( "$CK.hdr" ); die "problem finding cache entry\n" if $@;
+
         $this->my_copy_hdr($res, "cache hit");
 
         my $fh = $cache->handle( $CK, "<" ) or die "problem finding cache entry\n";
@@ -76,13 +77,6 @@ sub run {
             print $buf;
         }
         close $fh;
-
-        unless( $res->is_success ) {
-            warn "[DEBUG] removing $CK" if $this->{debug};
-            $cache->remove($CK);
-        }
-
-        return;
 
     } else {
         my $expire = $this->{default_expire};
@@ -93,7 +87,7 @@ sub run {
         my $URL = "$mirror/$pinfo";
          # $URL =~ s/\/{2,}/\//g;
 
-        warn "[DEBUG] getting $URL" if $this->{debug};
+        warn "[DEBUG] getting $URL\n" if $this->{debug};
 
         my $fh       = $cache->handle( $CK, ">", $expire );
         my $request  = HTTP::Request->new(GET => $URL);
@@ -103,8 +97,9 @@ sub run {
             my $chunk = shift;
 
             unless( $announced_header ) {
+                my $res = shift;
                 $announced_header = 1;
-                $this->my_copy_hdr(shift, "cache miss");
+                $this->my_copy_hdr($res, "cache miss");
             }
 
             print $fh $chunk;
@@ -112,7 +107,7 @@ sub run {
         });
         close $fh;
 
-        warn "[DEBUG] setting $CK" if $this->{debug};
+        warn "[DEBUG] setting $CK\n" if $this->{debug};
         $cache->set("$CK.hdr", Dumper($response), $expire);
 
         # if there was an error (which we don't know until ex post facto), go back and fix the expiry
@@ -130,7 +125,7 @@ sub my_copy_hdr {
     my $cgi = $this->{cgi};
 
     my $status = $res->status_line;
-    warn "[DEBUG] cache status: $hit; status: $status" if $this->{debug};
+    warn "[DEBUG] cache status: $hit; status: $status\n" if $this->{debug};
     print $cgi->header(-status=>$status, -type=>$res->header( 'content-type' ));
 }
 
