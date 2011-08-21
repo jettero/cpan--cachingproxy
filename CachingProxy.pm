@@ -133,7 +133,15 @@ sub my_copy_hdr {
 
     my $status = $res->status_line;
     warn "[DEBUG] cache status: $hit; status: $status\n" if $this->{debug};
-    print $cgi->header(-status=>$status, -type=>$res->header( 'content-type' ));
+
+    my @more_headers = (qw(accept_ranges bytes));
+
+    for(qw(content_length etag)) {
+        my $v = $cgi->header($_);
+        push @more_headers, ($_=>$v) if $v;
+    }
+
+    print $cgi->header(-status=>$status, -type=>$res->header( 'content-type' ), @more_headers);
 }
 
 # }}}
