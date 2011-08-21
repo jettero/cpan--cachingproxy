@@ -11,7 +11,6 @@ WriteMakefile(
         'Cache::File'  => 0,
         'Data::Dumper' => 0,
         LWP            => 0,
-        version        => 0,
     },
 
     ($ExtUtils::MakeMaker::VERSION ge '6.48'? 
@@ -19,7 +18,7 @@ WriteMakefile(
             META_MERGE => {
                 keywords => ['CPAN','cache'],
                 resources=> {
-                    repository => 'http://github.com/jettero/cpan--cachingproxy/tree',
+                    repository => 'http://github.com/jettero/cpan--cachingproxy/',
                 },
             },
 
