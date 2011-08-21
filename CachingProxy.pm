@@ -143,7 +143,7 @@ sub my_copy_hdr {
         push @more_headers, ($_=>$v) if $v;
     }
 
-    print $cgi->header(-status=>$status, -type=>$res->header( 'content-type' ), @more_headers);
+    print $cgi->header(-status=>$status, -charset=>"", -type=>$res->header( 'content-type' ), @more_headers);
 }
 
 # }}}
