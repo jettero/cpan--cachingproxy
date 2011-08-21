@@ -107,6 +107,11 @@ sub run {
         });
         close $fh;
 
+        unless( $response->is_success ) {
+            $this->my_copy_hdr($response, "cache miss");
+            $cache->set($CK => "FAIL: " . $response->status_line);
+        }
+
         warn "[DEBUG] setting $CK\n" if $this->{debug};
         $cache->set("$CK.hdr", Dumper($response), $expire);
 
