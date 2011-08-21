@@ -76,6 +76,8 @@ sub run {
             if( my $lm = $res->header('last_modified') ) {
                 my $_lm = eval { $this->{ua}->head($URL)->header('last_modified') };
 
+                # $lm = "hehe, random failure time" if (int rand(7)) == 0;
+
                 if( $_lm and $lm ne $_lm ) {
                     warn "[DEBUG] last_modified differs ($lm vs $_lm), forcing cache miss\n" if $this->{debug};
                     goto FORCE_CACHE_MISS;
