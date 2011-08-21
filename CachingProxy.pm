@@ -108,9 +108,11 @@ sub run {
         close $fh;
 
         unless( $response->is_success ) {
-            $this->my_copy_hdr($response, "cache miss [fail]");
             my $my_fail = "FAIL: " . $response->status_line . "\n";
             $cache->set($CK => $my_fail, $expire);
+            $response->header(content_length=>length $my_fail); # fix content length so we don't lie to clients
+
+            $this->my_copy_hdr($response, "cache miss [fail]");
             print $my_fail;
         }
 
