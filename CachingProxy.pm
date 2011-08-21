@@ -68,23 +68,14 @@ sub run {
     my $cache = $this->{cache_object};
     if( $cache->exists($CK) and $cache->exists("$CK.hdr") ) { our $VAR1;
         my $res = eval $cache->get( "$CK.hdr" ); die "problem finding cache entry\n" if $@;
+        $this->my_copy_hdr($res, "cache hit");
 
-        my $status = $res->status_line;
-
-        warn "[DEBUG] (cached) status: $status" if $this->{debug};
-        print $cgi->header(-status=>$status, -type=>$res->header( 'content-type' ));
-
-        if( $res->is_success ) {
-            my $fh = $cache->handle( $CK, "<" ) or die "problem finding cache entry\n";
-            my $buf;
-            while( read $fh, $buf, 4096 ) {
-                print $buf;
-            }
-            close $fh;
-
-        } else {
-            print $status;
+        my $fh = $cache->handle( $CK, "<" ) or die "problem finding cache entry\n";
+        my $buf;
+        while( read $fh, $buf, 4096 ) {
+            print $buf;
         }
+        close $fh;
 
         unless( $res->is_success ) {
             warn "[DEBUG] removing $CK" if $this->{debug};
@@ -113,10 +104,7 @@ sub run {
 
             unless( $announced_header ) {
                 $announced_header = 1;
-                my $res = shift;
-                my $status = $res->status_line;
-                warn "[DEBUG] (not cached) status: $status" if $this->{debug};
-                print $cgi->header(-status=>$status, -type=>$res->header( 'content-type' ));
+                $this->my_copy_hdr(shift, "cache miss");
             }
 
             print $fh $chunk;
@@ -134,4 +122,16 @@ sub run {
         }
     }
 }
+# }}}
+
+# {{{ sub my_copy_hdr
+sub my_copy_hdr {
+    my ($this, $res, $hit) = @_;
+    my $cgi = $this->{cgi};
+
+    my $status = $res->status_line;
+    warn "[DEBUG] cache status: $hit; status: $status" if $this->{debug};
+    print $cgi->header(-status=>$status, -type=>$res->header( 'content-type' ));
+}
+
 # }}}
