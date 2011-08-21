@@ -59,7 +59,7 @@ sub run {
     my $this   = shift;
     my $cgi    = $this->{cgi};
     my $mirror = $this->{mirrors}[ rand @{$this->{mirrors}} ];
-    my $pinfo  = $cgi->path_info;
+    my $pinfo  = $cgi->path_info || return print $cgi->redirect( $cgi->url . "/" );
        $pinfo =~ s/^\///;
        $mirror=~ s/\/$//;
 
