@@ -64,9 +64,7 @@ sub run {
        $mirror=~ s/\/$//;
 
     my $CK    = "$this->{key_space}:$pinfo";
-    my $again = 0;
 
-    THE_TOP:
     my $cache = $this->{cache_object};
     if( $cache->exists($CK) and $cache->exists("$CK.hdr") ) { our $VAR1;
         my $res = eval $cache->get( "$CK.hdr" ); die "problem finding cache entry\n" if $@;
@@ -95,9 +93,7 @@ sub run {
 
         return;
 
-    } elsif( not $again ) {
-        $again = 1;
-
+    } else {
         my $expire = $this->{default_expire};
            $expire = $this->{index_expire} if $pinfo =~ $this->{index_regexp};
 
@@ -107,6 +103,8 @@ sub run {
          # $URL =~ s/\/{2,}/\//g;
 
         warn "[DEBUG] getting $URL" if $this->{debug};
+
+        print $cgi->header(-status=>$status, -type=>$res->header( 'content-type' ));
 
         my $fh = $cache->handle( $CK, ">", $expire );
         my $request  = HTTP::Request->new(GET => $URL);
@@ -121,10 +119,6 @@ sub run {
             $cache->set_expiry( $CK       => $this->{error_expire} );
             $cache->set_expiry( "$CK.hdr" => $this->{error_expire} );
         }
-
-        goto THE_TOP;
     }
-
-    die "problem fetching $pinfo. :(\n";
 }
 # }}}
