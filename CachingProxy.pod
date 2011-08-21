@@ -121,10 +121,20 @@ option will set the user agent string to something other than the default:
 
 =head3 activity_timeout
 
-If you chose to use the default agent and let CCP generate the oobject, this
+If you chose to use the default agent and let CCP generate the object, this
 option will set the C<$ua->timeout()> (see L<LWP::UserAgent> for details).  It
 defaults to 12 seconds and will not set the C<$ua->timeout()> at all if given an
 undefined value.
+
+=head3 ignore_last_modified
+
+Normally, CCP will attempt to check the Last-Modified HTTP header.  If the
+header differs between cache and server, CCP will force a cache miss.  CCP will
+not compare the Last-Modified header if it is not given by the server.
+
+Nevertheless, this could conceivably cause problems for some people, although
+the diagnosis would be somewhat tricky.  Use this option to disable the check
+altogether.
 
 =head1 AUTHOR
 

@@ -12,6 +12,7 @@
      "FAIL: text instead."
    - do not send charset information, it's probably lies
    - send content length and etag headers
+   - taught CCP how to check last-modified headers
 
 1.4002: Wed Apr  1 06:49:50 EDT 2009
    - t/01_mg-new_auto.t is failing on like 10% of the perl5.10s,
