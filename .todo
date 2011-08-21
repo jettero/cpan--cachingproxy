@@ -6,4 +6,7 @@
     <note priority="medium" time="1313928565">
         I wish to return new results as we receive blocks, rather than at the end.  I get timeouts with wget -T15, etc.
     </note>
+    <note priority="medium" time="1313930746">
+        I should check for fresh docs … rather than always waiting for cache expiry
+    </note>
 </todo>
