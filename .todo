@@ -1,6 +1,6 @@
 <?xml version="1.0"?>
 <todo version="0.1.20">
-    <note priority="high" time="1313928534">
+    <note priority="high" time="1313928534" done="1313930485">
         when using path-info, links turn up wrong if the cgi base url doesn't end with a slash
     </note>
     <note priority="medium" time="1313928565">
