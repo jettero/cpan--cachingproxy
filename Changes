@@ -4,6 +4,9 @@
      results in my browser, but http://host/cpan-proxy/ was fine.
      There is now a 302 redirect to add the tail-slash if it is
      absent — specifically: when path_info() is “”.
+   - Cache misses used to be written to the cache completely
+     before any chunks were sent to the client.  Fixed.  Cache
+     miss chunks are now sent to the client as they are received.
 
 1.4002: Wed Apr  1 06:49:50 EDT 2009
    - t/01_mg-new_auto.t is failing on like 10% of the perl5.10s,
