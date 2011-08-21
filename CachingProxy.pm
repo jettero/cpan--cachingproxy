@@ -77,7 +77,7 @@ sub run {
                 my $_lm = eval { $this->{ua}->head($URL)->header('last_modified') };
 
                 if( $_lm and $lm ne $_lm ) {
-                    warn "[DEBUG] last_modified differs, forcing cache miss\n" if $this->{debug};
+                    warn "[DEBUG] last_modified differs ($lm vs $_lm), forcing cache miss\n" if $this->{debug};
                     goto FORCE_CACHE_MISS;
                 }
             }
