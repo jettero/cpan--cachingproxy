@@ -137,7 +137,7 @@ sub my_copy_hdr {
     my @more_headers = (qw(accept_ranges bytes));
 
     for(qw(content_length etag)) {
-        my $v = $cgi->header($_);
+        my $v = $res->header($_);
         push @more_headers, ($_=>$v) if $v;
     }
 
