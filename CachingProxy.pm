@@ -4,6 +4,7 @@ package CPAN::CachingProxy;
 
 use strict;
 use Carp;
+use URI;
 use Cache::File;
 use Data::Dumper;
 use LWP::UserAgent;
@@ -60,13 +61,25 @@ sub run {
     my $cgi    = $this->{cgi};
     my $mirror = $this->{mirrors}[ rand @{$this->{mirrors}} ];
     my $pinfo  = $cgi->path_info || return print $cgi->redirect( $cgi->url . "/" );
+
        $pinfo =~ s/^\///;
        $mirror=~ s/\/$//;
 
     my $CK = "$this->{key_space}:$pinfo";
-
     my $URL = "$mirror/$pinfo";
      # $URL =~ s/\/{2,}/\//g;
+
+    if( $pinfo =~ s{^___/}{} ) {
+        # NOTE: undocumented special case.  If the path begins with ___, it
+        # probably came from a 404 handler.  in which case, the real pinfo was
+        # probably an absolute url.  replace the entire path portion of our
+        # mirror url with the non ___'d part of the pinfo.
+
+        my $nurl = URI->new($mirror);
+        $nurl->path($pinfo);
+        # arguably we should use URI for all our path manips, but this section is new and the old stuff works fine
+        $URL = "$nurl";
+    }
 
     my $cache = $this->{cache_object};
     if( $cache->exists($CK) and $cache->exists("$CK.hdr") ) { our $VAR1;
