@@ -27,7 +27,6 @@ sub new {
         $this->{default_expire} = "2 day"      unless exists $this->{default_expire};
         $this->{index_expire}   = "3 hour"     unless exists $this->{index_expire};
         $this->{error_expire}   = "15 minute"  unless exists $this->{error_expire};
-      # $this->{ignore_etags};
 
         $this->{index_regexp}   = qr/(?:03modlist\.data|02packages\.details\.txt|01mailrc\.txt)/ unless exists $this->{index_regexp};
         $this->{cache_object}   = Cache::File->new(cache_root=>$this->{cache_root}, default_expires => $this->{default_expire} );
@@ -73,11 +72,14 @@ sub run {
     if( $cache->exists($CK) and $cache->exists("$CK.hdr") ) { our $VAR1;
         my $res = eval $cache->get( "$CK.hdr" ); die "problem finding cache entry\n" if $@;
 
-        unless( $this->{ignore_etags} ) {
-            if( my $et = $res->header('etag') ) {
-                my $_et = eval { $this->{ua}->head($URL)->header('etag') };
+        unless( $this->{ignore_last_modified} ) {
+            if( my $lm = $res->header('last_modified') ) {
+                my $_lm = eval { $this->{ua}->head($URL)->header('last_modified') };
 
-                warn "[DEBUG] $et =? $_et?\n";
+                if( $_lm and $lm ne $_lm ) {
+                    warn "[DEBUG] last_modified differs, forcing cache miss\n" if $this->{debug};
+                    goto FORCE_CACHE_MISS;
+                }
             }
         }
 
@@ -91,6 +93,7 @@ sub run {
         close $fh;
 
     } else {
+        FORCE_CACHE_MISS:
         my $expire = $this->{default_expire};
            $expire = $this->{index_expire} if $pinfo =~ $this->{index_regexp};
 
@@ -147,7 +150,7 @@ sub my_copy_hdr {
 
     my @more_headers = (qw(accept_ranges bytes));
 
-    for(qw(content_length etag)) {
+    for(qw(content_length), $this->{ignore_last_modified} ? ():(qw(last_modified))) {
         my $v = $res->header($_);
         push @more_headers, ($_=>$v) if $v;
     }
