@@ -1,3 +1,13 @@
+1.6000: Tue Jan 03 2012
+   - Nobody really uses this but me I guess; otherwise someone
+     surely would have noticed the various timing problems with
+     the cache by now.
+
+     I have resolved them with lockfiles (for now).  I haven't
+     thought of a better solution, and I think this will work
+     fine.  I'd like to do better.  But, then, I'd also like to
+     support file download continuations.  Ahh, later.
+
 1.5000: Sun Aug 21 2011
    - I made sure needed slashes are are in the URL.  I was seeing
      a trouble where http://host/cpan-proxy was giving incorrect

@@ -11,6 +11,7 @@ WriteMakefile(
         'Cache::File'  => 0,
         'Data::Dumper' => 0,
         LWP            => 0,
+        'Digest::SHA1' => 0,
     },
 
     ($ExtUtils::MakeMaker::VERSION ge '6.48'? 

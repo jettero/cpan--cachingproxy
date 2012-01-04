@@ -136,9 +136,19 @@ Nevertheless, this could conceivably cause problems for some people, although
 the diagnosis would be somewhat tricky.  Use this option to disable the check
 altogether.
 
+=head3 url_lockfile_dir
+
+There are various things that go wrong with the main program flow if programs
+give up quickly and come back for another bite at the apple right away.  If this
+happens with a large file or impatient user, then they'll receive a truncated
+file on their second request and ... well, that's a bug.
+
+The solution (temporary?) is to lock the URL until the initial download is
+complete or some error occurs.
+
 =head1 AUTHOR
 
-Paul Miller C<jettero@cpan.org>
+Paul Miller C<< <jettero@cpan.org> >>
 
 I am using this software in my own projects...  If you find bugs, please please
 please let me know.
@@ -146,14 +156,15 @@ please let me know.
 I normally hang out on #perl on freenode, so you can try to get immediate
 gratification there if you like.  L<irc://irc.freenode.net/perl>
 
-I also check rt.cpan.org from time to time.
+I also respond to rt.cpan.org very quickly.
 
 =head1 COPYRIGHT
 
-Copyright (c) 2008 Paul Miller -- LGPL [Software::License::LGPL_2_1]
+Copyright © 2012 Paul Miller
 
-    perl -MSoftware::License::LGPL_2_1 -e '$l = Software::License::LGPL_2_1->new({holder=>"Paul Miller"});
-      print $l->fulltext' | less
+=head1 LICENSE
+
+Perl Artistic — see Perl's License.
 
 =head1 SEE ALSO
 
