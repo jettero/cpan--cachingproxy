@@ -230,8 +230,9 @@ sub my_copy_hdr {
         if( ($start) = $r =~ m/^bytes=(\d+)-$/ ) {
             my $len = $more_headers{content_length};
             my $new = $len - $start;
+            my $end = $len - 1; # this is the byte number, not a number of bytes or something
 
-            $more_headers{content_range}  = "bytes $start-$new/$len";
+            $more_headers{content_range}  = "bytes $start-$end/$len";
             $more_headers{content_length} = $new;
         }
     }

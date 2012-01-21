@@ -1,5 +1,5 @@
 1.6500: Fri Jan 20 2012
-   - added support for http ranges
+   - added support for http ranges from rfc2616§14
 
 1.6000: Tue Jan 03 2012
    - Nobody really uses this but me I guess; otherwise someone
