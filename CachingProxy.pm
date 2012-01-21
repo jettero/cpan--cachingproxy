@@ -226,10 +226,9 @@ sub my_copy_hdr {
 
     my $start = 0;
 
-    if( my $r = $cgi->http("Ranges") ) {
-
-        if( ($start) = $r =~ m/^(\d+)-/ ) {
-            my $len = $more_headers{'Content-Length'};
+    if( my $r = $cgi->http("Range") ) {
+        if( ($start) = $r =~ m/^bytes=(\d+)-$/ ) {
+            my $len = $more_headers{content_length};
             my $new = $len - $start;
 
             $more_headers{content_range}  = "bytes $start-$new/$len";
