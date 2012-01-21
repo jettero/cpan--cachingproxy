@@ -11,7 +11,7 @@ use LWP::UserAgent;
 use Fcntl qw(:flock);
 use Digest::SHA1 qw(sha1_hex);
 
-our $VERSION = "1.6000";
+our $VERSION = "1.6500";
 
 # wget -O MIRRORED.BY http://www.cpan.org/MIRRORED.BY
 
@@ -128,7 +128,7 @@ sub run {
             }
         }
 
-        $this->my_copy_hdr($res, "cache hit");
+        my $start = $this->my_copy_hdr($res, "cache hit");
 
         # XXX: is it the right thing to do to close the lockfile here?
         # Probably.  At this point, we should have the whole file, and we sure
@@ -140,7 +140,17 @@ sub run {
 
         my $fh = $cache->handle( $CK, "<" ) or die "problem finding cache entry\n";
         my $buf;
-        while( read $fh, $buf, 4096 ) {
+        BUF: while( read $fh, $buf, 4096 ) {
+            if( $start > 0 ) {
+                if( $start > length $buf ) {
+                    $start -= length $buf;
+                    next BUF;
+
+                } else {
+                    substr $buf, 0, $start, "";
+                    $start = 0;
+                }
+            }
             print $buf;
         }
         close $fh;
@@ -201,14 +211,35 @@ sub my_copy_hdr {
     my $status = $res->status_line;
     warn "[DEBUG] cache status: $hit; status: $status\n" if $this->{debug};
 
-    my @more_headers = (qw(accept_ranges bytes));
+    my %more_headers = (qw(accept_ranges bytes));
 
     for(qw(content_length), $this->{ignore_last_modified} ? ():(qw(last_modified))) {
         my $v = $res->header($_);
-        push @more_headers, ($_=>$v) if $v;
+
+        if( $v ) {
+            my $k = lc $_;
+               $k =~ s/-/_/g;
+
+            $more_headers{$k} = $v;
+        }
     }
 
-    print $cgi->header(-status=>$status, -charset=>"", -type=>$res->header( 'content-type' ), @more_headers);
+    my $start = 0;
+
+    if( my $r = $cgi->http("Ranges") ) {
+
+        if( ($start) = $r =~ m/^(\d+)-/ ) {
+            my $len = $more_headers{'Content-Length'};
+            my $new = $len - $start;
+
+            $more_headers{content_range}  = "bytes $start-$new/$len";
+            $more_headers{content_length} = $new;
+        }
+    }
+
+    print $cgi->header(-status=>$status, -charset=>"", -type=>$res->header( 'content-type' ), %more_headers);
+
+    return $start;
 }
 
 # }}}

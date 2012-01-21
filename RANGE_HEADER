@@ -1,0 +1,20 @@
+$ curl -I voltar.org
+HTTP/1.1 200 OK
+Date: Fri, 20 Jan 2012 21:04:08 GMT
+Server: Apache/2.2.21 (Unix) mod_ssl/2.2.21 OpenSSL/1.0.0e
+Last-Modified: Tue, 12 Jul 2011 16:45:28 GMT
+ETag: "12096e-3542-4a7e206f4da00"
+Accept-Ranges: bytes
+Content-Length: 13634
+Content-Type: text/html
+
+$ curl -r 17- -I voltar.org
+HTTP/1.1 206 Partial Content
+Date: Fri, 20 Jan 2012 21:04:11 GMT
+Server: Apache/2.2.21 (Unix) mod_ssl/2.2.21 OpenSSL/1.0.0e
+Last-Modified: Tue, 12 Jul 2011 16:45:28 GMT
+ETag: "12096e-3542-4a7e206f4da00"
+Accept-Ranges: bytes
+Content-Length: 13617
+Content-Range: bytes 17-13633/13634
+Content-Type: text/html
